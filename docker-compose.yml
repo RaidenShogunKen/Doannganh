@@ -1,0 +1,54 @@
+services:
+  db:
+    image: pgvector/pgvector:0.8.7-pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: qldt_dev
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Dat DB_PASSWORD trong .env hoac bien moi truong}
+      POSTGRES_DB: qldt_saudaihoc
+    ports:
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - qldt_pgdata:/var/lib/postgresql/data
+      - ./database/seed.sql:/seed.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U qldt_dev']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: qldt_dev
+      DB_PASSWORD: ${DB_PASSWORD:?Dat DB_PASSWORD trong .env hoac bien moi truong}
+      DB_NAME: qldt_saudaihoc
+      CORS_ORIGIN: http://localhost:8080
+      JWT_SECRET: ${JWT_SECRET:?Vui long tao file .env va dat JWT_SECRET. Chay: openssl rand -base64 48}
+      JWT_EXPIRES_IN: 8h
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      CROSSREF_POLITE_EMAIL: ${CROSSREF_POLITE_EMAIL:-}
+      PORT: 3000
+    volumes:
+      - qldt_uploads:/app/uploads
+    ports:
+      - '127.0.0.1:3000:3000'
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - '127.0.0.1:8080:80'
+
+volumes:
+  qldt_pgdata:
+  qldt_uploads:

@@ -1,0 +1,37 @@
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+credentials.json
+secrets.json
+
+# Dependencies, builds and runtime data
+node_modules/
+dist/
+build/
+coverage/
+uploads/
+*.tsbuildinfo
+*.log
+*.sqlite*
+*.db
+*.dump
+*.bak
+
+# Local tools and personal submission materials
+/.agents/
+/.codex/
+/.impeccable/
+/screenshots/
+/*.docx
+/*.pdf
+/*.pptx
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
